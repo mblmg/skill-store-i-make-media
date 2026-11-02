@@ -1,13 +1,12 @@
 {
   "name": "be-ambitious",
   "description": "Makes a task or prompt more ambitious using Felix Rieseberg's types of ambition: Altitude, Depth and Range. Mirrored from robonuggets/be-ambitious.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "RoboNuggets",
     "url": "https://github.com/robonuggets"
   },
   "homepage": "https://github.com/robonuggets/be-ambitious",
   "repository": "https://github.com/robonuggets/be-ambitious",
-  "license": "MIT",
-  "upstreamCommit": "dc116a3ebd8cf772e4d0930626f67369bd60399d"
+  "license": "MIT"
 }

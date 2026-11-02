@@ -36,11 +36,12 @@ jobs:
           OLD_VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
           # Letzte Stelle hochzählen: 1.0.0 -> 1.0.1
           NEW_VERSION=$(echo "$OLD_VERSION" | awk -F. '{print $1"."$2"."$3+1}')
-          jq --arg v "$NEW_VERSION" --arg sha "$SHA" \
-            '.version = $v | .upstreamCommit = $sha' \
+          jq --arg v "$NEW_VERSION" '.version = $v' \
             "$PLUGIN_DIR/.claude-plugin/plugin.json" > /tmp/plugin.json
           mv /tmp/plugin.json "$PLUGIN_DIR/.claude-plugin/plugin.json"
-          echo "be-ambitious $NEW_VERSION" >> /tmp/changes.txt
+          # Original-Stand nur in der Commit-Nachricht festhalten,
+          # claude.ai warnt bei unbekannten Feldern in plugin.json.
+          echo "be-ambitious $NEW_VERSION (Original ${SHA:0:7})" >> /tmp/changes.txt
 
       # humanizer-de: das ganze Repo ist das Plugin. Der Autor pflegt die
       # Versionsnummer selbst, wir übernehmen sie unverändert.
