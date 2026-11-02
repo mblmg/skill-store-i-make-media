@@ -1,0 +1,60 @@
+# Holt täglich den aktuellen Stand von robonuggets/be-ambitious.
+# Bei Änderungen: Dateien ersetzen, Version anheben, committen.
+# Der Push auf main löst dann den Sync in claude.ai aus.
+name: Upstream-Skills synchronisieren
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # täglich 04:17 UTC
+  workflow_dispatch: {}     # manuell über "Run workflow"
+
+permissions:
+  contents: write
+
+jobs:
+  be-ambitious:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM: https://github.com/robonuggets/be-ambitious.git
+      PLUGIN_DIR: plugins/be-ambitious
+      SKILL_DIR: plugins/be-ambitious/skills/be-ambitious
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upstream holen
+        run: |
+          git clone --depth 1 "$UPSTREAM" /tmp/upstream
+          echo "UPSTREAM_SHA=$(git -C /tmp/upstream rev-parse HEAD)" >> "$GITHUB_ENV"
+          cp /tmp/upstream/SKILL.md "$SKILL_DIR/SKILL.md"
+          cp /tmp/upstream/LICENSE  "$SKILL_DIR/LICENSE"
+
+      - name: Prüfen, ob sich etwas geändert hat
+        id: diff
+        run: |
+          if git diff --quiet -- "$SKILL_DIR"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Keine Änderungen upstream."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Version anheben
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          OLD_VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
+          # Letzte Stelle hochzählen: 1.0.0 -> 1.0.1
+          NEW_VERSION=$(echo "$OLD_VERSION" | awk -F. '{print $1"."$2"."$3+1}')
+          jq --arg v "$NEW_VERSION" --arg sha "$UPSTREAM_SHA" \
+            '.version = $v | .upstreamCommit = $sha' \
+            "$PLUGIN_DIR/.claude-plugin/plugin.json" > /tmp/plugin.json
+          mv /tmp/plugin.json "$PLUGIN_DIR/.claude-plugin/plugin.json"
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+
+      - name: Committen und pushen
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "be-ambitious $NEW_VERSION (upstream ${UPSTREAM_SHA:0:7})"
+          git push
