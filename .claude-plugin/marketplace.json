@@ -10,6 +10,12 @@
       "source": "./plugins/be-ambitious",
       "description": "Spiegel von robonuggets/be-ambitious (Felix Riesebergs Altitude, Depth, Range).",
       "homepage": "https://github.com/robonuggets/be-ambitious"
+    },
+    {
+      "name": "humanizer-de",
+      "source": "./plugins/humanizer-de",
+      "description": "Spiegel von marmbiz/humanizer-de (deutscher Stil-Editor, KI-Schreibmuster erkennen und entfernen).",
+      "homepage": "https://github.com/marmbiz/humanizer-de"
     }
   ]
 }

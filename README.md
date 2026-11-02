@@ -5,6 +5,7 @@ Claude-Plugin-Marktplatz mit Spiegeln von Skills, die selbst keinen Marktplatz h
 | Plugin | Quelle | Aktualisierung |
 |---|---|---|
 | be-ambitious | [robonuggets/be-ambitious](https://github.com/robonuggets/be-ambitious) | GitHub Action, täglich 04:17 UTC |
+| humanizer-de | [marmbiz/humanizer-de](https://github.com/marmbiz/humanizer-de) | GitHub Action, täglich 04:17 UTC |
 
 ## Einrichtung in claude.ai
 

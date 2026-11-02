@@ -1,5 +1,5 @@
-# Holt täglich den aktuellen Stand von robonuggets/be-ambitious.
-# Bei Änderungen: Dateien ersetzen, Version anheben, committen.
+# Holt täglich den aktuellen Stand der gespiegelten Skills.
+# Bei Änderungen: Dateien ersetzen, committen, pushen.
 # Der Push auf main löst dann den Sync in claude.ai aus.
 name: Upstream-Skills synchronisieren
 
@@ -12,49 +12,66 @@ permissions:
   contents: write
 
 jobs:
-  be-ambitious:
+  sync:
     runs-on: ubuntu-latest
-    env:
-      UPSTREAM: https://github.com/robonuggets/be-ambitious.git
-      PLUGIN_DIR: plugins/be-ambitious
-      SKILL_DIR: plugins/be-ambitious/skills/be-ambitious
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upstream holen
+      # be-ambitious: nur SKILL.md und LICENSE. Das Original hat keine
+      # Versionsnummer, deshalb zählen wir unsere eigene hoch.
+      - name: be-ambitious
+        env:
+          UPSTREAM: https://github.com/robonuggets/be-ambitious.git
+          PLUGIN_DIR: plugins/be-ambitious
+          SKILL_DIR: plugins/be-ambitious/skills/be-ambitious
         run: |
-          git clone --depth 1 "$UPSTREAM" /tmp/upstream
-          echo "UPSTREAM_SHA=$(git -C /tmp/upstream rev-parse HEAD)" >> "$GITHUB_ENV"
-          cp /tmp/upstream/SKILL.md "$SKILL_DIR/SKILL.md"
-          cp /tmp/upstream/LICENSE  "$SKILL_DIR/LICENSE"
-
-      - name: Prüfen, ob sich etwas geändert hat
-        id: diff
-        run: |
+          git clone --depth 1 "$UPSTREAM" /tmp/be-ambitious
+          SHA=$(git -C /tmp/be-ambitious rev-parse HEAD)
+          cp /tmp/be-ambitious/SKILL.md "$SKILL_DIR/SKILL.md"
+          cp /tmp/be-ambitious/LICENSE  "$SKILL_DIR/LICENSE"
           if git diff --quiet -- "$SKILL_DIR"; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Keine Änderungen upstream."
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "be-ambitious: keine Änderungen."
+            exit 0
           fi
-
-      - name: Version anheben
-        if: steps.diff.outputs.changed == 'true'
-        run: |
           OLD_VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
           # Letzte Stelle hochzählen: 1.0.0 -> 1.0.1
           NEW_VERSION=$(echo "$OLD_VERSION" | awk -F. '{print $1"."$2"."$3+1}')
-          jq --arg v "$NEW_VERSION" --arg sha "$UPSTREAM_SHA" \
+          jq --arg v "$NEW_VERSION" --arg sha "$SHA" \
             '.version = $v | .upstreamCommit = $sha' \
             "$PLUGIN_DIR/.claude-plugin/plugin.json" > /tmp/plugin.json
           mv /tmp/plugin.json "$PLUGIN_DIR/.claude-plugin/plugin.json"
-          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
+          echo "be-ambitious $NEW_VERSION" >> /tmp/changes.txt
+
+      # humanizer-de: das ganze Repo ist das Plugin. Der Autor pflegt die
+      # Versionsnummer selbst, wir übernehmen sie unverändert.
+      # Weggelassen: .git, seine GitHub-Abläufe und seine Marktplatz-Datei.
+      - name: humanizer-de
+        env:
+          UPSTREAM: https://github.com/marmbiz/humanizer-de.git
+          PLUGIN_DIR: plugins/humanizer-de
+        run: |
+          git clone --depth 1 "$UPSTREAM" /tmp/humanizer-de
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.claude-plugin/marketplace.json' \
+            /tmp/humanizer-de/ "$PLUGIN_DIR/"
+          git add -A -f -- "$PLUGIN_DIR"
+          if git diff --cached --quiet -- "$PLUGIN_DIR"; then
+            echo "humanizer-de: keine Änderungen."
+            exit 0
+          fi
+          VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
+          echo "humanizer-de $VERSION" >> /tmp/changes.txt
 
       - name: Committen und pushen
-        if: steps.diff.outputs.changed == 'true'
         run: |
+          if [ ! -s /tmp/changes.txt ]; then
+            echo "Nichts zu tun."
+            exit 0
+          fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "be-ambitious $NEW_VERSION (upstream ${UPSTREAM_SHA:0:7})"
+          git commit -m "Upstream-Sync: $(paste -sd ', ' /tmp/changes.txt)"
           git push
