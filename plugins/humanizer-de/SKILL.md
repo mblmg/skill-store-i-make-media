@@ -4,7 +4,7 @@ description: 'Edit-Pass für bestehenden deutschen Text: Register/Rhythmus messe
 allowed-tools: [Read, Write, Edit, Grep, Glob, Bash]
 metadata:
   display_name: Humanizer (Deutsch)
-  version: 5.28.3
+  version: 5.28.4
   author: Martin Moeller
   maintainer_website: https://martin-moeller.biz
   based_on: 'Deutsche Wikipedia: Anzeichen für KI-generierte Inhalte, Erkennung KI-Einsatz, Schnelltest KI'
@@ -68,7 +68,7 @@ Folgende Fälle sind regelmäßig Fehlalarm und werden nicht behandelt, solange 
 - `mixed_address` aus Fremdstimme: Stilprofil und aktives `--precise` blenden Blockquotes sowie gepaarte Inline-Zitate aus. Registerdrift liegt erst vor, wenn die Autorenstimme selbst zwischen `du` und `Sie` wechselt.
 - Muster 64 bei Use-Mention: `german_pattern_lint.py` blendet Marker in Code, Inline-Zitaten und Markdown-Hervorhebung aus. Ein angeführtes `nahtlos` ist kein Beitrag zum Cluster.
 - `particles_outside_locker`/`particle_overdose` und `copula_avoidance_cluster` bei lexikalischer Mehrdeutigkeit: `register_lint.py` sieht Partikel-, `german_pattern_lint.py` Kopula-Wortformen, aber keine Wortart oder Lesart. `schon` im Sinn von `bereits`, `mal` als `einmal` oder `5-mal`, `ja` als Antwort und `stellt` als Vollverb (`stellt eine Frage`, `stellt sich die Frage`, `stellt die KI vor ein Problem`) sind allein kein Befund; real bleibt der Fund, wenn die Wörter tatsächlich als Modalpartikeln/Nähemarker gehäuft sind oder `stellt` eine Kopula-Vermeidung wie `stellt dar` statt `ist`/`hat` bildet.
-- Hoher `subject_initial_ratio` ohne Cluster: Werte über 0,85 sind allein unauffällig (echte Menschen: Median 0,816; humanisierte Blog-Referenz: 0,891). `rhythm_lint.py` meldet dies nur als Fund bei zusätzlich gedrückter Satzlängenvarianz (unter 0,6) oder wiederholten Satzanfängen – die reine Zahl in einer Audit-Zusammenfassung ist für sich kein Fund.
+- Hoher `subject_initial_ratio` ohne Cluster: Werte über 0,70 sind allein unauffällig (echte Menschen: Median 0,64). `rhythm_lint.py` meldet dies nur als Fund bei zusätzlich gedrückter Satzlängenvarianz (unter 0,6) oder wiederholten Satzanfängen – die reine Zahl in einer Audit-Zusammenfassung ist für sich kein Fund.
 - Doppelpunkt im Einzeltitel (Muster 54): erst ab 2+ gleich gebauten Doppelpunkt-Titeln im selben Dokument behandeln, nie einen einzelnen Haupttitel oder ein Label (UI, Quellenangabe, Zeit-/Ortsangabe).
 
 ## Modusmatrix
@@ -107,7 +107,7 @@ Spätere Pässe dürfen frühere nicht invalidieren. Rhythmus immer zuletzt.
 **Pass 3 – Struktur und rhetorische Figuren (Cluster-Regel).** Alle Muster mit `pass: 3`; Schwerpunkte: Überschriften-Schemata/Absatzisometrie(M61)/substanzlose-Sektionen/Listen-Parallelismus/Schließzwang(M62) sowie die Figuren Trikolon(M9), Dichotomie(M7), negativer Parallelismus(M8) und „von… bis“-Erweiterung(M12) prüfen. Nach Cluster-Regel ist ein einzelnes Trikolon kein Befund. Absatz-Umsortierungstest(ab drei substanziellen Hauptabsätzen): Nachbarabsätze tauschen; Prämissen-/Zeitfolge-/Referenz-/Folgerungsschaden? Kein Schaden: Inhaltsabhängigkeitsmangel melden. Gate: nicht bei FAQ/Glossar/Referenzdoku/Katalog/Nachrichtenüberblick/bewusst additiven Aufzählungen. Kein Auto-Rewrite, kein künstlicher Konnektor-„Fix“, kein nummeriertes Muster. Fertig, wenn Strukturänderungen Fakten/Fazitfloskeln/Volltextpflicht nicht erzeugen.
 
 **Pass 4 – Rhythmus (Locker/Sachlich: standardmäßig an; Formal: nur auf Wunsch).** Alle Muster mit `pass: 4`; konkrete Stellschrauben:
-- Vorfeld nur im Cluster rotieren, bis die Häufung bricht; nicht unter menschliches Maß (~0,8 subjektinitial) drücken. Varianten: Adverbial, vorangestellter Nebensatz, Objekt, Präpositionalphrase, nie zweimal dieselbe.
+- Vorfeld nur im Cluster rotieren, bis die Häufung bricht; nicht unter menschliches Maß (~0,65 subjektinitial) drücken. Varianten: Adverbial, vorangestellter Nebensatz, Objekt, Präpositionalphrase, nie zweimal dieselbe.
 - Satzlänge spreizen: pro längerem Absatz mindestens ein Satz unter 6 Wörtern oder über 25 – nur wo die Aussage es trägt.
 - Absatzlängen entzerren: nicht jeder Absatz 3–5 Sätze.
 - Konnektor-Budget: höchstens ein mechanischer Konnektor pro Absatz; Übergänge bevorzugt über inhaltliche Anknüpfung (Thema-Rhema).
