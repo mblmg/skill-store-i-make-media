@@ -16,6 +16,12 @@
       "source": "./plugins/humanizer-de",
       "description": "Spiegel von marmbiz/humanizer-de (deutscher Stil-Editor, KI-Schreibmuster erkennen und entfernen).",
       "homepage": "https://github.com/marmbiz/humanizer-de"
+    },
+    {
+      "name": "voice-and-tone",
+      "source": "./plugins/voice-and-tone",
+      "description": "Eigener Skill: Werbe- und Kundentexte klar, warm und unaufgeregt schreiben, nach dem Voice-and-Tone-Kapitel des Mailchimp Content Style Guide.",
+      "homepage": "https://styleguide.mailchimp.com/voice-and-tone/"
     }
   ]
 }

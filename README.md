@@ -6,6 +6,7 @@ Claude-Plugin-Marktplatz mit Spiegeln von Skills, die selbst keinen Marktplatz h
 |---|---|---|
 | be-ambitious | [robonuggets/be-ambitious](https://github.com/robonuggets/be-ambitious) | GitHub Action, täglich 04:17 UTC |
 | humanizer-de | [marmbiz/humanizer-de](https://github.com/marmbiz/humanizer-de) | GitHub Action, täglich 04:17 UTC |
+| voice-and-tone | Eigener Skill nach dem [Mailchimp Content Style Guide](https://styleguide.mailchimp.com/voice-and-tone/) | Von Hand |
 
 ## Einrichtung in claude.ai
 

@@ -1,0 +1,7 @@
+{
+  "name": "voice-and-tone",
+  "description": "Werbe- und Kundentexte in klarer, warmer, unaufgeregter Stimme schreiben und prüfen. Regeln nach dem Voice-and-Tone-Kapitel des Mailchimp Content Style Guide.",
+  "version": "1.0.0",
+  "author": { "name": "Magnus Brühl" },
+  "homepage": "https://styleguide.mailchimp.com/voice-and-tone/"
+}
