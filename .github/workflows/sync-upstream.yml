@@ -65,6 +65,33 @@ jobs:
           VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
           echo "humanizer-de $VERSION" >> /tmp/changes.txt
 
+      # unslop: das ganze Repo ist das Plugin. Das Original hat keine
+      # Versionsnummer, deshalb bleibt unsere plugin.json stehen und wir
+      # zählen selbst hoch. Weggelassen: .git, .github, .claude-plugin.
+      - name: unslop
+        env:
+          UPSTREAM: https://github.com/heydamir/unslop.git
+          PLUGIN_DIR: plugins/unslop
+        run: |
+          git clone --depth 1 "$UPSTREAM" /tmp/unslop
+          SHA=$(git -C /tmp/unslop rev-parse HEAD)
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.claude-plugin/' \
+            /tmp/unslop/ "$PLUGIN_DIR/"
+          git add -A -f -- "$PLUGIN_DIR"
+          if git diff --cached --quiet -- "$PLUGIN_DIR"; then
+            echo "unslop: keine Änderungen."
+            exit 0
+          fi
+          OLD_VERSION=$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")
+          NEW_VERSION=$(echo "$OLD_VERSION" | awk -F. '{print $1"."$2"."$3+1}')
+          jq --arg v "$NEW_VERSION" '.version = $v' \
+            "$PLUGIN_DIR/.claude-plugin/plugin.json" > /tmp/plugin.json
+          mv /tmp/plugin.json "$PLUGIN_DIR/.claude-plugin/plugin.json"
+          echo "unslop $NEW_VERSION (Original ${SHA:0:7})" >> /tmp/changes.txt
+
       - name: Committen und pushen
         run: |
           if [ ! -s /tmp/changes.txt ]; then
